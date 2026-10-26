@@ -67,7 +67,16 @@ def set_lang(code: str):
 # --------------------------------------------------------------------------- #
 @app.route("/")
 def dashboard():
-    return render_template("dashboard.html")
+    bank = bank_store.load_bank()
+    pending_math = sum(
+        1 for q in bank if q.get("type") == "math" and not q.get("approved", False)
+    )
+    return render_template("dashboard.html", pending_math=pending_math)
+
+
+@app.route("/howto")
+def howto():
+    return render_template("howto.html")
 
 
 # --------------------------------------------------------------------------- #
@@ -244,6 +253,7 @@ def exam():
 def exam_generate():
     from agents.exam_assembler import assemble_class, exam_fingerprint
     from exam_render import render_exams_html, render_keys_html
+    from pdf_render import render_exams_pdf, render_keys_pdf
 
     lang = current_lang()
     f = request.form
@@ -257,6 +267,7 @@ def exam_generate():
     mix = {"easy": _int("easy", 3), "medium": _int("medium", 3), "hard": _int("hard", 4)}
     n_students = min(_int("students", 5) or 5, 300)  # cap to keep it snappy
     exam_name = f.get("exam_name", "").strip() or ("Prova" if lang == "pt" else "Exam")
+    school = f.get("school", "").strip()
 
     bank = bank_store.load_bank()
     if not bank:
@@ -283,6 +294,12 @@ def exam_generate():
     (_EXAMS_OUT / f"{token}_keys.html").write_text(
         render_keys_html(exams, exam_name=exam_name, lang=lang), encoding="utf-8"
     )
+    (_EXAMS_OUT / f"{token}_exams.pdf").write_bytes(
+        render_exams_pdf(exams, exam_name=exam_name, lang=lang, school=school)
+    )
+    (_EXAMS_OUT / f"{token}_keys.pdf").write_bytes(
+        render_keys_pdf(exams, exam_name=exam_name, lang=lang, school=school)
+    )
 
     session["exam_result"] = {
         "token": token,
@@ -297,13 +314,23 @@ def exam_generate():
 
 @app.route("/exam/download/<token>/<kind>")
 def exam_download(token: str, kind: str):
-    if kind not in ("exams", "keys"):
+    # kind is one of: exams_pdf, keys_pdf, exams_html, keys_html
+    valid = {
+        "exams_pdf": ("exams.pdf", "application/pdf"),
+        "keys_pdf": ("keys.pdf", "application/pdf"),
+        "exams_html": ("exams.html", "text/html"),
+        "keys_html": ("keys.html", "text/html"),
+    }
+    if kind not in valid:
         abort(404)
+    download_name, _mime = valid[kind]
     safe_token = secure_filename(token)
-    path = _EXAMS_OUT / f"{safe_token}_{kind}.html"
+    suffix = "pdf" if kind.endswith("pdf") else "html"
+    base = kind.rsplit("_", 1)[0]
+    path = _EXAMS_OUT / f"{safe_token}_{base}.{suffix}"
     if not path.exists():
         abort(404)
-    return send_file(path, as_attachment=True, download_name=f"{kind}.html")
+    return send_file(path, as_attachment=True, download_name=download_name)
 
 
 # --------------------------------------------------------------------------- #

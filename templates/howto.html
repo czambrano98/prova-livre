@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('howto_title') }}</h1>
+<p class="lead">{{ t('howto_intro') }}</p>
+
+<div class="card">
+  <ol class="steps">
+    <li>
+      <h3>{{ t('howto_s1_t') }}</h3>
+      <p>{{ t('howto_s1_b') }}</p>
+    </li>
+    <li>
+      <h3>{{ t('howto_s2_t') }}</h3>
+      <p>{{ t('howto_s2_b') }}</p>
+    </li>
+    <li>
+      <h3>{{ t('howto_s3_t') }}</h3>
+      <p>{{ t('howto_s3_b') }}</p>
+    </li>
+    <li>
+      <h3>{{ t('howto_s4_t') }}</h3>
+      <p>{{ t('howto_s4_b') }}</p>
+    </li>
+  </ol>
+  <div class="note">{{ t('howto_note') }}</div>
+  <a class="btn" href="{{ url_for('bank') }}">{{ t('nav_bank') }}</a>
+  <a class="btn secondary" href="{{ url_for('exam') }}">{{ t('nav_exam') }}</a>
+</div>
+{% endblock %}

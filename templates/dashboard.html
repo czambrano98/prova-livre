@@ -3,6 +3,13 @@
 <h1>{{ t('dash_title') }}</h1>
 <p class="lead">{{ t('dash_intro') }}</p>
 
+{% if pending_math %}
+<div class="note">
+  <strong>{{ pending_math }}</strong> {{ t('dash_pending') }}.
+  <a href="{{ url_for('bank') }}">{{ t('nav_bank') }}</a>
+</div>
+{% endif %}
+
 <div class="tiles">
   <div class="tile"><span class="num">{{ stats.total }}</span><span class="lbl">{{ t('dash_total') }}</span></div>
   <div class="tile easy"><span class="num">{{ stats.by_difficulty.easy }}</span><span class="lbl">{{ t('dash_easy') }}</span></div>

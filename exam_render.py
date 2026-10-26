@@ -127,12 +127,12 @@ def render_keys_html(
     lang: str = "pt",
 ) -> str:
     kw = "Gabaritos" if lang == "pt" else "Answer Keys"
-    title = f"{exam_name} — {kw}"
+    title = f"{exam_name} ({kw})"
     student_label = "Aluno" if lang == "pt" else "Student"
     header = (
         f'<div class="hdr"><span class="mark">&#10003;</span>'
         f'<span class="brand">ProvaLivre</span>'
-        f'<span class="exam">{_esc(exam_name)} &mdash; {kw}</span></div>'
+        f'<span class="exam">{_esc(exam_name)} ({kw})</span></div>'
     )
     blocks = [header]
     for ex in exams:

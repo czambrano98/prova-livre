@@ -29,6 +29,8 @@
         <input type="text" name="exam_name" placeholder="{{ t('exam_name') }}">
       </div>
     </div>
+    <label>{{ t('exam_school') }}</label>
+    <input type="text" name="school" placeholder="{{ t('exam_school_ph') }}">
     <button class="btn" type="submit">{{ t('exam_generate') }}</button>
   </form>
 </div>
@@ -43,8 +45,15 @@
   {% if result.shortfall %}
     <div class="flash flash-error">{{ t('exam_shortfall') }}</div>
   {% endif %}
-  <a class="btn" href="{{ url_for('exam_download', token=result.token, kind='exams') }}">{{ t('exam_download_exams') }}</a>
-  <a class="btn secondary" href="{{ url_for('exam_download', token=result.token, kind='keys') }}">{{ t('exam_download_keys') }}</a>
+  <div>
+    <a class="btn" href="{{ url_for('exam_download', token=result.token, kind='exams_pdf') }}">{{ t('exam_download_exams') }}</a>
+    <a class="btn" href="{{ url_for('exam_download', token=result.token, kind='keys_pdf') }}">{{ t('exam_download_keys') }}</a>
+  </div>
+  <div class="help" style="margin-top:10px">
+    <a href="{{ url_for('exam_download', token=result.token, kind='exams_html') }}">{{ t('exam_download_exams_html') }}</a>
+    &nbsp;·&nbsp;
+    <a href="{{ url_for('exam_download', token=result.token, kind='keys_html') }}">{{ t('exam_download_keys_html') }}</a>
+  </div>
 
   {% if result.sample %}
     <h2 style="margin-top:22px">{{ result.sample.student_id }}</h2>
