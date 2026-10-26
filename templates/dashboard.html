@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('dash_title') }}</h1>
+<p class="lead">{{ t('dash_intro') }}</p>
+
+<div class="tiles">
+  <div class="tile"><span class="num">{{ stats.total }}</span><span class="lbl">{{ t('dash_total') }}</span></div>
+  <div class="tile easy"><span class="num">{{ stats.by_difficulty.easy }}</span><span class="lbl">{{ t('dash_easy') }}</span></div>
+  <div class="tile medium"><span class="num">{{ stats.by_difficulty.medium }}</span><span class="lbl">{{ t('dash_medium') }}</span></div>
+  <div class="tile hard"><span class="num">{{ stats.by_difficulty.hard }}</span><span class="lbl">{{ t('dash_hard') }}</span></div>
+</div>
+
+<div class="tiles" style="margin-top:16px">
+  <div class="tile"><span class="num">{{ stats.by_type.mc }}</span><span class="lbl">{{ t('dash_mc') }}</span></div>
+  <div class="tile"><span class="num">{{ stats.by_type.short }}</span><span class="lbl">{{ t('dash_short') }}</span></div>
+  <div class="tile"><span class="num">{{ stats.by_type.math }}</span><span class="lbl">{{ t('dash_math') }}</span></div>
+</div>
+
+<div class="card" style="margin-top:24px">
+  <h2>{{ t('nav_bank') }} → {{ t('nav_exam') }}</h2>
+  <p class="help">1. {{ t('bank_generate_material_help') }}</p>
+  <p class="help">2. {{ t('exam_intro') }}</p>
+  <a class="btn" href="{{ url_for('bank') }}">{{ t('nav_bank') }}</a>
+  <a class="btn secondary" href="{{ url_for('exam') }}">{{ t('nav_exam') }}</a>
+</div>
+{% endblock %}

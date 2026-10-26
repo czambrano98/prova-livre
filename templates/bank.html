@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('bank_title') }}</h1>
+
+<div class="row">
+  <div class="card">
+    <h2>{{ t('bank_generate_material') }}</h2>
+    <p class="help">{{ t('bank_generate_material_help') }}</p>
+    <form method="post" action="{{ url_for('bank_generate_material') }}" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".pdf,.pptx,.txt,.md">
+      <div class="checkline">
+        <input type="checkbox" id="use_sample" name="use_sample" checked>
+        <label for="use_sample" style="margin:0">{{ t('bank_use_sample') }}</label>
+      </div>
+      <button class="btn" type="submit">{{ t('bank_generate_btn') }}</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>{{ t('bank_generate_seeds') }}</h2>
+    <p class="help">{{ t('bank_generate_seeds_help') }}</p>
+    <form method="post" action="{{ url_for('bank_generate_seeds') }}">
+      <textarea name="seeds" placeholder="{{ t('seed_placeholder') }}"></textarea>
+      <button class="btn" type="submit">{{ t('bank_generate_btn') }}</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>{{ t('bank_manual') }}</h2>
+  <form method="post" action="{{ url_for('bank_manual_add') }}">
+    <div class="row">
+      <div>
+        <label>{{ t('bank_type') }}</label>
+        <select name="type" id="mtype" onchange="toggleManual()">
+          <option value="mc">{{ t('mc') }}</option>
+          <option value="short">{{ t('short') }}</option>
+        </select>
+      </div>
+      <div>
+        <label>{{ t('bank_difficulty') }}</label>
+        <select name="difficulty">
+          <option value="easy">{{ t('easy') }}</option>
+          <option value="medium">{{ t('medium') }}</option>
+          <option value="hard">{{ t('hard') }}</option>
+        </select>
+      </div>
+      <div>
+        <label>{{ t('bank_concept') }}</label>
+        <input type="text" name="concept" required>
+      </div>
+    </div>
+    <label>{{ t('bank_question') }}</label>
+    <textarea name="question_text" required style="min-height:70px"></textarea>
+
+    <div id="mc_fields">
+      <label>{{ t('bank_options') }}</label>
+      <div class="row">
+        <div><input type="text" name="opt0" placeholder="A"></div>
+        <div><input type="text" name="opt1" placeholder="B"></div>
+        <div><input type="text" name="opt2" placeholder="C"></div>
+        <div><input type="text" name="opt3" placeholder="D"></div>
+      </div>
+      <label>{{ t('bank_correct') }}</label>
+      <select name="correct_index">
+        <option value="0">A</option><option value="1">B</option>
+        <option value="2">C</option><option value="3">D</option>
+      </select>
+    </div>
+
+    <div id="short_fields" style="display:none">
+      <label>{{ t('bank_answer') }}</label>
+      <textarea name="answer" style="min-height:60px"></textarea>
+    </div>
+
+    <button class="btn secondary" type="submit">{{ t('bank_add_btn') }}</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>{{ t('bank_list') }} ({{ stats.total }})</h2>
+  {% if stats.by_type.math %}
+    <div class="flash" style="background:#fff6e6;color:#8a5a00">{{ t('bank_math_notice') }}</div>
+  {% endif %}
+  {% if questions %}
+    {% for q in questions %}
+      <div class="qitem">
+        <div class="qmeta">
+          <span class="chip type">{{ t(q.type) }}</span>
+          <span class="chip {{ q.difficulty }}">{{ t(q.difficulty) }}</span>
+          <span class="sev">{{ q.concept }}</span>
+          <form class="inline-form" method="post" action="{{ url_for('bank_delete', qid=q.id) }}" style="margin-left:auto">
+            <button class="btn danger" type="submit">{{ t('bank_delete') }}</button>
+          </form>
+        </div>
+        {% if q.type == 'math' %}
+          <div class="qtext">{{ q.question_template }}</div>
+          <div class="help">ƒ: <code>{{ q.answer_formula }}</code> {{ q.answer_units }}</div>
+          {% if previews and previews.get(q.id) %}
+            <div class="help"><strong>{{ t('bank_sample') }}:</strong> {{ previews[q.id] }}</div>
+          {% endif %}
+          {% if q.approved %}
+            <span class="chip" style="background:var(--ok-ink)">{{ t('bank_approved') }}</span>
+          {% else %}
+            <div class="help" style="color:var(--err-ink)">⚠ {{ t('bank_pending') }}</div>
+            <form class="inline-form" method="post" action="{{ url_for('bank_approve', qid=q.id) }}">
+              <button class="btn" type="submit" style="margin-top:6px">{{ t('bank_approve_btn') }}</button>
+            </form>
+          {% endif %}
+        {% else %}
+          <div class="qtext">{{ q.question_text }}</div>
+        {% endif %}
+        {% if q.type == 'mc' %}
+          <ul>
+            {% for opt in q.options %}
+              <li class="{{ 'correct' if loop.index0 == q.correct_index else '' }}">{{ opt }}</li>
+            {% endfor %}
+          </ul>
+        {% elif q.type == 'short' %}
+          <div class="help"><strong>{{ t('bank_answer') }}:</strong> {{ q.answer }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="help">{{ t('bank_empty') }}</p>
+  {% endif %}
+</div>
+
+<script>
+function toggleManual() {
+  var t = document.getElementById('mtype').value;
+  document.getElementById('mc_fields').style.display = (t === 'mc') ? 'block' : 'none';
+  document.getElementById('short_fields').style.display = (t === 'short') ? 'block' : 'none';
+}
+toggleManual();
+</script>
+{% endblock %}

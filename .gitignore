@@ -1,0 +1,33 @@
+# Secrets — never commit
+.env
+*.env
+!.env.example
+env.txt
+*key*.txt
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# App runtime output
+logs/
+exams_output/
+instance/
+dist/
+
+# Runtime bank/materials (the app re-seeds from data/sample_bank.json on fresh clone)
+data/bank.json
+data/materials.json
+data/materials/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Transcription working files (dev only)
+Audios/
+transcripts*.txt

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('exam_title') }}</h1>
+<p class="lead">{{ t('exam_intro') }}</p>
+
+<div class="card">
+  <form method="post" action="{{ url_for('exam_generate') }}">
+    <div class="row">
+      <div>
+        <label>{{ t('exam_easy') }} ({{ stats.by_difficulty.easy }})</label>
+        <input type="number" name="easy" value="3" min="0">
+      </div>
+      <div>
+        <label>{{ t('exam_medium') }} ({{ stats.by_difficulty.medium }})</label>
+        <input type="number" name="medium" value="3" min="0">
+      </div>
+      <div>
+        <label>{{ t('exam_hard') }} ({{ stats.by_difficulty.hard }})</label>
+        <input type="number" name="hard" value="4" min="0">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>{{ t('exam_students') }}</label>
+        <input type="number" name="students" value="5" min="1" max="300">
+      </div>
+      <div>
+        <label>{{ t('exam_name') }}</label>
+        <input type="text" name="exam_name" placeholder="{{ t('exam_name') }}">
+      </div>
+    </div>
+    <button class="btn" type="submit">{{ t('exam_generate') }}</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="card">
+  <h2>{{ t('exam_result') }}: {{ result.exam_name }}</h2>
+  <p class="lead">
+    <strong>{{ result.count }}</strong> {{ t('exam_result')|lower }} —
+    <strong>{{ result.unique }}</strong> {{ t('exam_unique') }}.
+  </p>
+  {% if result.shortfall %}
+    <div class="flash flash-error">{{ t('exam_shortfall') }}</div>
+  {% endif %}
+  <a class="btn" href="{{ url_for('exam_download', token=result.token, kind='exams') }}">{{ t('exam_download_exams') }}</a>
+  <a class="btn secondary" href="{{ url_for('exam_download', token=result.token, kind='keys') }}">{{ t('exam_download_keys') }}</a>
+
+  {% if result.sample %}
+    <h2 style="margin-top:22px">{{ result.sample.student_id }}</h2>
+    {% for it in result.sample['items'] %}
+      <div class="qitem">
+        <div class="qmeta">
+          <span class="chip {{ it.difficulty }}">{{ t(it.difficulty) }}</span>
+          <span class="chip type">{{ t(it.type) }}</span>
+        </div>
+        <div class="qtext">{{ it.number }}. {{ it.question_text }}</div>
+        {% if it.type == 'mc' %}
+          <ul>{% for opt in it.options %}<li>{{ opt }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

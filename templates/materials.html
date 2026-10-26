@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('mat_title') }}</h1>
+<p class="lead">{{ t('mat_intro') }}</p>
+
+<div class="card">
+  <h2>{{ t('mat_upload') }}</h2>
+  <form method="post" action="{{ url_for('materials_upload') }}" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button class="btn" type="submit">{{ t('mat_upload') }}</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>{{ t('mat_title') }}</h2>
+  {% if materials %}
+    {% for m in materials %}
+      <div class="qitem">
+        <div class="qmeta">
+          <strong>{{ m.original_name }}</strong>
+          <span class="sev">{{ (m.size / 1024) | round(1) }} KB</span>
+        </div>
+        <a class="btn secondary" href="{{ url_for('materials_download', mid=m.id) }}">{{ t('mat_download') }}</a>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="help">{{ t('mat_none') }}</p>
+  {% endif %}
+</div>
+{% endblock %}

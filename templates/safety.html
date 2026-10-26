@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('safety_title') }}</h1>
+<p class="lead">{{ t('safety_intro') }}</p>
+
+<div class="card">
+  <form method="post" action="{{ url_for('safety') }}">
+    <button class="btn" type="submit">{{ t('safety_run') }}</button>
+  </form>
+</div>
+
+{% if report %}
+<div class="card">
+  <h2>{{ report.passed }} / {{ report.total }} ✓</h2>
+  {% for c in report.checks %}
+    <div class="safety-row">
+      <span class="{{ 'badge-pass' if c.passed else 'badge-fail' }}">
+        {{ 'PASS' if c.passed else 'FAIL' }}
+      </span>
+      <div>
+        <div class="cat">{{ c.category }}</div>
+        <div class="sname">{{ c.name }}</div>
+        <div class="sev">{{ c.detail }} → {{ c.evidence }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
