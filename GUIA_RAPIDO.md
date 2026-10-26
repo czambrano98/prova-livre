@@ -41,6 +41,14 @@ python app.py
 ```
 Depois abra o navegador em **http://127.0.0.1:5000**.
 
+## Se aparecer um erro
+- **"SyntaxError":** você abriu o programa "Python" por engano (a tela com `>>>`).
+  Feche essa janela e use o `start.bat`.
+- **Erro ao instalar os componentes:** seu Python pode ser muito novo. Instale o
+  **Python 3.12 ou 3.13** em https://www.python.org/downloads/ (marque "Add Python to
+  PATH") e clique de novo no `start.bat`.
+- Qualquer outra dúvida, peça ajuda ao assistente de IA ou me chame.
+
 ## Como usar
 1. **Banco de Questões** → envie o material da sua aula (PDF, PowerPoint ou texto) e
    clique em gerar. A IA cria questões fáceis, médias e difíceis.

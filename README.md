@@ -46,6 +46,13 @@ Open **http://127.0.0.1:5000** in a browser.
 > so you can generate exams and see the safety demo **without an API key**.
 > An API key is only needed to *generate new questions* from material.
 
+### If something goes wrong
+- A `SyntaxError` means the commands were typed inside the Python interpreter (the `>>>`
+  prompt). Run them in a terminal (Command Prompt / PowerShell / shell), or just use
+  `start.bat` / `start.sh`.
+- If dependency installation fails, your Python may be too new for the pinned versions.
+  Install Python 3.12 or 3.13 and run `start.bat` / `start.sh` again.
+
 ---
 
 ## API keys
