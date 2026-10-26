@@ -54,23 +54,34 @@ class ChatResult:
     raw: Any = field(default=None, repr=False)
 
 
-def _build_client() -> tuple[OpenAI, str]:
-    """Return (client, model). Prefer the course Portkey key; fall back to OpenAI."""
+def _build_client() -> tuple[str, Any, str]:
+    """Return (provider, client, model).
+
+    Priority: course Portkey key (gpt-6-luna) -> your own OpenAI key -> your own
+    Anthropic/Claude key. The first key found wins, so graders with PORTKEY_API_KEY
+    always hit the course model.
+    """
     portkey_key = os.environ.get("PORTKEY_API_KEY", "").strip()
     openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    override = os.environ.get("LLM_MODEL", "").strip()
 
     if portkey_key:
         client = OpenAI(api_key=portkey_key, base_url=PORTKEY_BASE_URL)
-        return client, DEFAULT_MODEL
+        return "openai", client, (override or DEFAULT_MODEL)
     if openai_key:
-        # User is paying for their own model; use the real OpenAI endpoint.
         client = OpenAI(api_key=openai_key)
-        model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
-        return client, model
+        return "openai", client, (override or "gpt-4o-mini")
+    if anthropic_key:
+        import anthropic  # imported only when a Claude key is actually used
+
+        client = anthropic.Anthropic(api_key=anthropic_key)
+        return "anthropic", client, (override or "claude-opus-5-5")
 
     raise LLMConfigError(
-        "No API key found. Put PORTKEY_API_KEY in a .env file in this folder "
-        "or one folder above it. See .env.example."
+        "No API key found. Put PORTKEY_API_KEY (course), OPENAI_API_KEY, or "
+        "ANTHROPIC_API_KEY in a .env file in this folder or one folder above it. "
+        "See .env.example."
     )
 
 
@@ -111,6 +122,65 @@ def _create_with_fallback(client: OpenAI, kwargs: dict[str, Any]):
         return client.chat.completions.create(**kwargs)
 
 
+def _anthropic_chat(
+    client: Any,
+    model: str,
+    messages: list[dict[str, str]],
+    *,
+    max_tokens: int | None,
+    label: str,
+) -> ChatResult:
+    """Claude (Anthropic) path. Converts OpenAI-style messages to the Messages API.
+
+    The system role is a separate parameter; temperature is not sent (rejected by
+    current Claude models). max_tokens is required, so we default it generously.
+    """
+    system_parts = [m["content"] for m in messages if m.get("role") == "system"]
+    convo = [
+        {"role": m["role"], "content": m["content"]}
+        for m in messages
+        if m.get("role") in ("user", "assistant")
+    ]
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens or 16000,
+        "messages": convo,
+    }
+    if system_parts:
+        kwargs["system"] = "\n\n".join(system_parts)
+
+    resp = client.messages.create(**kwargs)
+
+    text = "".join(
+        getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"
+    )
+    usage = getattr(resp, "usage", None)
+    input_tokens = getattr(usage, "input_tokens", 0) or 0
+    completion_tokens = getattr(usage, "output_tokens", 0) or 0
+    cached_tokens = getattr(usage, "cache_read_input_tokens", 0) or 0
+    # Match OpenAI semantics: prompt_tokens includes the cached portion.
+    prompt_tokens = input_tokens + cached_tokens
+    total_tokens = prompt_tokens + completion_tokens
+
+    log_usage(
+        label=label,
+        model=model,
+        prompt_tokens=prompt_tokens,
+        cached_tokens=cached_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+    )
+    return ChatResult(
+        text=text,
+        model=model,
+        prompt_tokens=prompt_tokens,
+        cached_tokens=cached_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+        raw=resp,
+    )
+
+
 def chat(
     messages: list[dict[str, str]],
     *,
@@ -120,8 +190,13 @@ def chat(
     model: str | None = None,
 ) -> ChatResult:
     """Single chat completion. Records token usage under `label`."""
-    client, resolved_model = _build_client()
+    provider, client, resolved_model = _build_client()
     resolved_model = model or resolved_model
+
+    if provider == "anthropic":
+        return _anthropic_chat(
+            client, resolved_model, messages, max_tokens=max_tokens, label=label
+        )
 
     kwargs: dict[str, Any] = {
         "model": resolved_model,
@@ -230,6 +305,6 @@ def health_check() -> str:
         [{"role": "user", "content": "Reply with exactly: OK"}],
         label="health-check",
         temperature=0.0,
-        max_tokens=10,
+        max_tokens=1024,  # generous so thinking models (Claude) have room
     )
     return result.text.strip()

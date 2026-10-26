@@ -77,11 +77,13 @@ configuração:
 Sem nenhuma chave, o programa ainda abre e gera provas com o **banco de exemplo**.
 
 ### Mais tarde: criar sua própria chave (opcional)
-Se um dia quiser uma chave só sua (você paga o uso, bem baratinho):
-1. Acesse https://platform.openai.com/api-keys e faça login.
-2. Em **Billing**, adicione um crédito (US$ 5 dura bastante neste uso).
-3. Clique em **"Create new secret key"**, copie a chave (começa com `sk-`) e coloque no
-   `.env` como acima, na linha `OPENAI_API_KEY=`.
+O programa aceita três tipos de chave — **Portkey** (do curso), **OpenAI** ou
+**Claude (Anthropic)**. Basta ter **uma**. Se um dia quiser uma chave só sua (você paga
+o uso, bem baratinho):
+1. OpenAI: acesse https://platform.openai.com/api-keys · Claude: https://console.anthropic.com
+2. Faça login, adicione um crédito (US$ 5 dura bastante) e crie uma chave.
+3. Copie a chave e coloque no `.env`, numa linha:
+   `OPENAI_API_KEY=...` **ou** `ANTHROPIC_API_KEY=...`
 
 🔒 **Nunca compartilhe a chave** nem a coloque em prints, e-mails ou mensagens.
 

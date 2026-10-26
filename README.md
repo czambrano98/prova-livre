@@ -49,14 +49,19 @@ The app looks for a `.env` file in **two places, in this order**:
 1. this repo folder (`Final Project/.env`)
 2. one folder above it (`../.env`)  ← teaching staff place their key here
 
-Use these exact variable names:
+The app accepts **any one** of three keys (checked in this order), so Portkey,
+OpenAI, or Claude all work:
 
 ```
-PORTKEY_API_KEY=your_key_here      # course key, gpt-6-luna via Portkey (required to generate questions)
-OPENAI_API_KEY=your_key_here       # optional, only if running your own paid model
+PORTKEY_API_KEY=your_key_here      # course key, gpt-6-luna via Portkey (used by staff)
+OPENAI_API_KEY=your_key_here       # your own OpenAI model (default gpt-4o-mini)
+ANTHROPIC_API_KEY=your_key_here    # your own Claude model (default claude-opus-5-5)
+LLM_MODEL=claude-haiku-5-5         # optional: override the model (e.g. cheapest Claude)
 ```
 
-Copy `.env.example` to `.env` and fill it in. **Never commit your real `.env`.**
+The first key present wins, so teaching staff with `PORTKEY_API_KEY` always get the
+course model. Copy `.env.example` to `.env` and fill in one key. **Never commit your
+real `.env`.**
 
 To test the staff setup: move your `.env` up one folder and confirm the app
 still runs.
