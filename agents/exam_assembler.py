@@ -31,13 +31,19 @@ def _student_rng(base_seed: int | str, student_id: str) -> random.Random:
 
 
 def _pool_by_difficulty(
-    bank: list[dict[str, Any]], difficulty: str, types: set[str] | None
+    bank: list[dict[str, Any]],
+    difficulty: str,
+    types: set[str] | None,
+    concepts: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     pool = []
     for q in bank:
         if q.get("difficulty") != difficulty:
             continue
         if types is not None and q.get("type") not in types:
+            continue
+        # Optional topic filter: only include the concepts the teacher chose.
+        if concepts is not None and q.get("concept") not in concepts:
             continue
         # Human-in-the-loop: AI-written math must be approved by a teacher before
         # it can appear on a student's exam. Non-math questions need no gate.
@@ -54,6 +60,7 @@ def assemble_exam(
     *,
     base_seed: int | str = 42,
     types: set[str] | None = None,
+    concepts: set[str] | None = None,
     strict: bool = False,
 ) -> dict[str, Any]:
     """Build one student's exam + answer key.
@@ -70,7 +77,7 @@ def assemble_exam(
         want = int(mix.get(difficulty, 0))
         if want <= 0:
             continue
-        pool = _pool_by_difficulty(bank, difficulty, types)
+        pool = _pool_by_difficulty(bank, difficulty, types, concepts)
         if len(pool) < want:
             if strict:
                 raise NotEnoughQuestions(
@@ -169,10 +176,11 @@ def assemble_class(
     *,
     base_seed: int | str = 42,
     types: set[str] | None = None,
+    concepts: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Build unique exams for a list of students."""
     return [
-        assemble_exam(bank, mix, s, base_seed=base_seed, types=types)
+        assemble_exam(bank, mix, s, base_seed=base_seed, types=types, concepts=concepts)
         for s in students
     ]
 

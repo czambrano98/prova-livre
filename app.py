@@ -246,7 +246,15 @@ def _flash_usage(result: dict, added: int) -> None:
 # --------------------------------------------------------------------------- #
 @app.route("/exam")
 def exam():
-    return render_template("exam.html", result=session.pop("exam_result", None))
+    bank = bank_store.load_bank()
+    topics: list[str] = []
+    for q in bank:
+        c = q.get("concept")
+        if c and c not in topics:
+            topics.append(c)
+    return render_template(
+        "exam.html", result=session.pop("exam_result", None), topics=topics
+    )
 
 
 @app.route("/exam/generate", methods=["POST"])
@@ -274,6 +282,11 @@ def exam_generate():
         flash(t(lang, "bank_empty"), "error")
         return redirect(url_for("exam"))
 
+    # Optional topic filter. If none chosen (or all), use the whole bank.
+    all_topics = {q.get("concept") for q in bank if q.get("concept")}
+    chosen = {c for c in f.getlist("concepts") if c in all_topics}
+    concepts = chosen if (chosen and chosen != all_topics) else None
+
     pending_math = sum(
         1 for q in bank if q.get("type") == "math" and not q.get("approved", False)
     )
@@ -281,7 +294,9 @@ def exam_generate():
         flash(f"{pending_math} {t(lang, 'exam_math_excluded')}", "error")
 
     students = [f"{('Aluno' if lang=='pt' else 'Student')} {i:02d}" for i in range(1, n_students + 1)]
-    exams = assemble_class(bank, mix, students, base_seed=uuid.uuid4().int % 100000)
+    exams = assemble_class(
+        bank, mix, students, base_seed=uuid.uuid4().int % 100000, concepts=concepts
+    )
 
     unique = len({exam_fingerprint(e) for e in exams})
     shortfall = any(e["shortfalls"] for e in exams)

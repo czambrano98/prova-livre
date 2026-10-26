@@ -31,6 +31,17 @@
     </div>
     <label>{{ t('exam_school') }}</label>
     <input type="text" name="school" placeholder="{{ t('exam_school_ph') }}">
+
+    {% if topics and topics|length > 1 %}
+    <label style="margin-top:16px">{{ t('exam_topics') }}</label>
+    <p class="help" style="margin-top:0">{{ t('exam_topics_help') }}</p>
+    <div class="topicgrid">
+      {% for tp in topics %}
+      <label class="topicchk"><input type="checkbox" name="concepts" value="{{ tp }}" checked> {{ tp }}</label>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <button class="btn" type="submit">{{ t('exam_generate') }}</button>
   </form>
 </div>

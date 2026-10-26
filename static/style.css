@@ -173,3 +173,8 @@ code { background: var(--line-soft); padding: 1px 6px; border-radius: 5px; font-
 .steps p { margin: 0; color: var(--ink-soft); font-size: 15.5px; }
 
 .note { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid #efe0c2; border-radius: 9px; padding: 13px 16px; font-size: 15px; margin: 14px 0; }
+
+/* Topic filter checkboxes */
+.topicgrid { display: flex; flex-wrap: wrap; gap: 9px 20px; margin: 4px 0 6px; }
+.topicchk { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0; font-size: 15px; color: var(--ink); }
+.topicchk input { width: auto; }
