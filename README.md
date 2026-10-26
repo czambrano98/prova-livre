@@ -11,7 +11,13 @@ Built for MGT 409. Bilingual (Português-BR / English). Runs locally.
 
 ## Quick start (under 10 minutes)
 
-**Requirements:** Python 3.10+.
+**Requirements:** Python 3.10+ installed and on PATH.
+
+**Easiest:** double-click **`start.bat`** (Windows) or run **`bash start.sh`** (Mac/Linux).
+It creates the environment, installs dependencies, starts the app, and opens the browser.
+
+**Manual steps** (equivalent). Run these in a terminal (Command Prompt / PowerShell / shell),
+not inside the Python interpreter:
 
 ```bash
 # 1. Clone and enter the folder

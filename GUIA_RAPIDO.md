@@ -7,28 +7,39 @@ monta o **gabarito** automaticamente.
 O ProvaLivre é **bilíngue** (Português / Inglês) — é só usar o botão **PT / EN** no
 canto superior direito.
 
-## Jeito mais fácil de começar
-Se você usa um assistente de IA (como o Codex ou o Claude), basta abrir esta pasta com
-ele e dizer:
+## Jeito mais fácil: clique duas vezes
+
+1. **Instale o Python** (versão 3.10 ou mais nova) em https://www.python.org/downloads/.
+   Ao instalar no Windows, marque a caixinha **"Add Python to PATH"**.
+2. Nesta pasta, **clique duas vezes no arquivo `start.bat`** (no Windows).
+   Ele prepara tudo sozinho e abre o ProvaLivre no seu navegador. A primeira vez pode
+   levar 1 ou 2 minutos.
+
+> ⚠️ **Muito importante:** não abra o programa chamado **"Python"** (aquela janela com
+> `>>>`). Use o `start.bat`. Se você digitar os comandos dentro do programa Python, vai
+> dar erro de "SyntaxError". No Mac, use o arquivo `start.sh`.
+
+O programa já vem com um **banco de questões de exemplo**, então você consegue gerar
+provas na hora, mesmo sem a chave de API.
+
+## Com um assistente de IA
+Se você usa um assistente (como o Codex ou o Claude), abra esta pasta com ele e diga:
 
 > *"Me ajude a instalar e rodar este aplicativo, passo a passo, em português."*
 
-O assistente já está configurado para te responder em português e te guiar.
+Ele já está configurado para te responder em português e te guiar.
 
-## Passo a passo manual
-1. **Instale o Python** (versão 3.10 ou mais nova) em https://www.python.org/downloads/
-   — ao instalar no Windows, marque a caixinha **"Add Python to PATH"**.
-2. Abra o **Prompt de Comando** (ou Terminal) dentro desta pasta e digite:
-   ```
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
-   python app.py
-   ```
-3. Abra o navegador em **http://127.0.0.1:5000**
-
-Pronto! O programa já vem com um **banco de questões de exemplo**, então você consegue
-gerar provas na hora.
+## Passo a passo manual (só se precisar)
+Abra o **Prompt de Comando** (não o programa "Python"). Para abrir: tecle a tecla
+Windows, digite `cmd` e tecle Enter. Então, dentro desta pasta, digite uma linha de
+cada vez:
+```
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+Depois abra o navegador em **http://127.0.0.1:5000**.
 
 ## Como usar
 1. **Banco de Questões** → envie o material da sua aula (PDF, PowerPoint ou texto) e
