@@ -1,6 +1,6 @@
 # ProvaLivre — Personalized Anti-Cheating Exams for Public Schools
 
-ProvaLivre helps an underfunded public high-school teacher build a reusable
+ProvaLivre helps a public high-school teacher with limited resources build a reusable
 **question bank** from their own lecture material and generate a **different exam
 for every student** — same difficulty, different questions and numbers — to make
 copying between students (and across terms) nearly impossible.

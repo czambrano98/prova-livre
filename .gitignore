@@ -31,3 +31,6 @@ Thumbs.db
 # Transcription working files (dev only)
 Audios/
 transcripts*.txt
+
+# Uncle's real class slides, kept local (not published to the public repo)
+data/uncle_slides/
