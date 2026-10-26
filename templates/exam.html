@@ -54,6 +54,10 @@
     &nbsp;·&nbsp;
     <a href="{{ url_for('exam_download', token=result.token, kind='keys_html') }}">{{ t('exam_download_keys_html') }}</a>
   </div>
+  <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+    <a class="btn secondary" href="{{ url_for('exam_commented', token=result.token) }}">{{ t('exam_commented') }}</a>
+    <p class="help" style="margin-top:8px">{{ t('exam_commented_help') }}</p>
+  </div>
 
   {% if result.sample %}
     <h2 style="margin-top:22px">{{ result.sample.student_id }}</h2>

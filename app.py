@@ -300,6 +300,14 @@ def exam_generate():
     (_EXAMS_OUT / f"{token}_keys.pdf").write_bytes(
         render_keys_pdf(exams, exam_name=exam_name, lang=lang, school=school)
     )
+    import json as _json
+    (_EXAMS_OUT / f"{token}_data.json").write_text(
+        _json.dumps(
+            {"exam_name": exam_name, "lang": lang, "school": school, "exams": exams},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
 
     session["exam_result"] = {
         "token": token,
@@ -331,6 +339,51 @@ def exam_download(token: str, kind: str):
     if not path.exists():
         abort(404)
     return send_file(path, as_attachment=True, download_name=download_name)
+
+
+@app.route("/exam/commented/<token>")
+def exam_commented(token: str):
+    """Generate (and cache) step-by-step solutions, then serve a commented key PDF."""
+    import json as _json
+
+    from agents.solution_writer import generate_solutions
+    from pdf_render import render_commented_keys_pdf
+
+    safe_token = secure_filename(token)
+    data_path = _EXAMS_OUT / f"{safe_token}_data.json"
+    if not data_path.exists():
+        abort(404)
+    data = _json.loads(data_path.read_text(encoding="utf-8"))
+    exams, exam_name, lang, school = (
+        data["exams"], data["exam_name"], data["lang"], data.get("school", ""),
+    )
+
+    # Distinct bank questions used on these exams.
+    used_qids = {str(ak.get("qid")) for ex in exams for ak in ex["answer_key"] if ak.get("qid")}
+    bank = bank_store.load_bank()
+    by_id = {q.get("id"): q for q in bank}
+
+    try:
+        # Generate solutions only for used questions that don't have one yet.
+        need = [by_id[qid] for qid in used_qids if qid in by_id and not by_id[qid].get("solution")]
+        if need:
+            new_sols = generate_solutions(need, language=lang)
+            for qid, sol in new_sols.items():
+                bank_store.update_question(qid, {"solution": sol})
+            bank = bank_store.load_bank()
+            by_id = {q.get("id"): q for q in bank}
+    except Exception as err:
+        flash(f"Could not generate solutions: {err}", "error")
+        return redirect(url_for("exam"))
+
+    solutions = {qid: by_id[qid]["solution"] for qid in used_qids
+                 if qid in by_id and by_id[qid].get("solution")}
+    pdf = render_commented_keys_pdf(
+        exams, exam_name=exam_name, solutions=solutions, lang=lang, school=school
+    )
+    out = _EXAMS_OUT / f"{safe_token}_commented.pdf"
+    out.write_bytes(pdf)
+    return send_file(out, as_attachment=True, download_name="commented_key.pdf")
 
 
 # --------------------------------------------------------------------------- #

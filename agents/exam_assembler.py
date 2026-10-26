@@ -89,6 +89,7 @@ def assemble_exam(
 
     for i, q in enumerate(chosen, start=1):
         qtype = q["type"]
+        qid = q.get("id")
         if qtype == "mc":
             opts = list(enumerate(q["options"]))  # (orig_index, text)
             rng.shuffle(opts)
@@ -109,6 +110,7 @@ def assemble_exam(
             answer_key.append(
                 {
                     "number": i,
+                    "qid": qid,
                     "type": "mc",
                     "correct_letter": _LETTERS[new_correct],
                     "correct_answer": shuffled[new_correct],
@@ -126,7 +128,7 @@ def assemble_exam(
                 }
             )
             answer_key.append(
-                {"number": i, "type": "short", "model_answer": q["answer"]}
+                {"number": i, "qid": qid, "type": "short", "model_answer": q["answer"]}
             )
 
         elif qtype == "math":
@@ -143,6 +145,7 @@ def assemble_exam(
             answer_key.append(
                 {
                     "number": i,
+                    "qid": qid,
                     "type": "math",
                     "answer": variant["answer"],
                     "answer_units": variant["answer_units"],

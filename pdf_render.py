@@ -153,6 +153,45 @@ def _key_line(pdf: FPDF, ak: dict[str, Any]) -> None:
         pdf.multi_cell(w, 6, f"{n}.  {ak['answer']}{units}   ({vals})")
 
 
+def render_commented_keys_pdf(exams: list[dict[str, Any]], *, exam_name: str,
+                              solutions: dict[str, str], lang: str = "pt",
+                              school: str = "") -> bytes:
+    """Answer key with a step-by-step worked solution under each question."""
+    kw = "Gabarito comentado" if lang == "pt" else "Commented answer key"
+    student_l = "Aluno" if lang == "pt" else "Student"
+    sol_l = "Resolução:" if lang == "pt" else "Solution:"
+
+    pdf = _new_pdf()
+    pdf.add_page()
+    _page_header(pdf, f"{exam_name} ({kw})", school)
+    for ex in exams:
+        pdf.set_font("DejaVu", "B", 12)
+        pdf.set_text_color(*_NAVY)
+        pdf.ln(2)
+        pdf.set_x(pdf.l_margin)
+        pdf.cell(0, 7, f"{student_l}: {ex['student_id']}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_draw_color(220, 226, 228)
+        pdf.set_line_width(0.2)
+        y = pdf.get_y()
+        pdf.line(pdf.l_margin, y, pdf.w - pdf.r_margin, y)
+        pdf.ln(2)
+        for ak in ex["answer_key"]:
+            _key_line(pdf, ak)
+            sol = solutions.get(str(ak.get("qid")))
+            if sol:
+                pdf.set_x(pdf.l_margin)
+                pdf.set_font("DejaVu", "B", 9)
+                pdf.set_text_color(*_TEAL)
+                pdf.cell(0, 5, sol_l, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.set_x(pdf.l_margin)
+                pdf.set_font("DejaVu", "", 10)
+                pdf.set_text_color(*_MUTED)
+                pdf.multi_cell(_width(pdf), 5.5, sol, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.ln(3)
+        pdf.ln(2)
+    return bytes(pdf.output())
+
+
 def render_keys_pdf(exams: list[dict[str, Any]], *, exam_name: str,
                     lang: str = "pt", school: str = "") -> bytes:
     kw = "Gabaritos" if lang == "pt" else "Answer Keys"
