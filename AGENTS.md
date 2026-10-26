@@ -13,7 +13,8 @@ técnico. Dê **um passo de cada vez** e confirme antes de continuar.
 ## O que é este aplicativo
 **ProvaLivre** gera **provas personalizadas anticola**: cada aluno recebe uma prova
 diferente (mesma dificuldade, questões e números diferentes), a partir do material de
-aula do próprio professor. Ajude o professor a **instalar** e **usar** o aplicativo.
+aula do próprio professor. É um aplicativo **bilíngue** (Português / Inglês). Ajude o
+professor a **instalar** e **usar** o aplicativo.
 
 ## Como ajudar a rodar (passo a passo)
 1. Confira o Python: `python --version` (precisa ser 3.10 ou superior). Se faltar,
